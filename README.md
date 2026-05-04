@@ -6,12 +6,6 @@
 
 **A Chrome extension that bulk-downloads nhentai galleries into a ZIP archive — one click, zero hassle.**
 
-[![Version](https://img.shields.io/badge/version-1.1.0-e8175d?style=flat-square)](#)
-[![License](https://img.shields.io/badge/license-MIT-ff6b9d?style=flat-square)](LICENSE)
-[![Manifest](https://img.shields.io/badge/manifest-v3-141418?style=flat-square)](#)
-[![Platform](https://img.shields.io/badge/Chrome-extension-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](#)
-
-<img src="assets/demo.gif" alt="Demo GIF" width="480"/>
 
 </div>
 
@@ -35,7 +29,7 @@
 
 | Ready State | Downloading | Done |
 |:-----------:|:-----------:|:----:|
-| <img src="assets/screenshot-ready.png" width="220"/> | <img src="assets/screenshot-downloading.png" width="220"/> | <img src="assets/screenshot-done.png" width="220"/> |
+| <img src="assets/ready.png" width="220"/> | <img src="assets/downloading.png" width="220"/> | <img src="assets/done.png" width="220"/> |
 
 </div>
 
