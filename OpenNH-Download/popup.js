@@ -98,10 +98,7 @@ function setDot(state) { dot.className = `logo-dot ${state}`; }
   setDot('idle');
 })();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// scrapeImageSrc — runs INSIDE the page via executeScript
-// Must be a self-contained function (no closure references).
-// ─────────────────────────────────────────────────────────────────────────────
+
 function scrapeImageSrc() {
   // Try the most common nhentai reader selectors first
   const selectors = [
