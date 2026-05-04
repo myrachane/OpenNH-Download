@@ -1,21 +1,17 @@
-/**
- * zipper.js — Minimal ZIP archive builder (store mode, no compression)
- * Pure JS, no dependencies. Produces valid ZIP files.
- */
 
 class Zipper {
   constructor() {
     this._files = [];
   }
 
-  /** Add a file. name = path inside zip, data = Uint8Array */
+  
   addFile(name, data) {
     const nameBytes = new TextEncoder().encode(name);
     const crc = crc32(data);
     this._files.push({ name, nameBytes, data, crc });
   }
 
-  /** Generate the ZIP as a Uint8Array */
+ 
   generate() {
     const parts = [];
     const centralDir = [];
@@ -32,7 +28,7 @@ class Zipper {
       parts.push(file.data);
     }
 
-    // ─── Central directory ───
+  
     const cdStart = offset;
     for (const { file, offset: localOffset, now } of centralDir) {
       const cd = centralDirHeader(file, localOffset, now);
@@ -40,12 +36,12 @@ class Zipper {
       offset += cd.length;
     }
 
-    // ─── End of central directory ───
+    
     const cdSize = offset - cdStart;
     const eocd = endOfCentralDir(centralDir.length, cdSize, cdStart);
     parts.push(eocd);
 
-    // Concatenate all
+    
     const total = parts.reduce((s, p) => s + p.length, 0);
     const out = new Uint8Array(total);
     let pos = 0;
@@ -54,7 +50,7 @@ class Zipper {
   }
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 function dosDatetime() {
   const d = new Date();
