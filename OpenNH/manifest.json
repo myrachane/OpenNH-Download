@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "OpenNH-Download",
+  "version": "2.1.0",
+  "description": "Download nhentai galleries as ZIP archives. Includes local analytics dashboard.",
+  "permissions": ["activeTab", "downloads", "scripting", "storage", "tabs"],
+  "host_permissions": ["*://*.nhentai.net/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "OpenNH-Download"
+  },
+  "content_scripts": [{
+    "matches": ["*://nhentai.net/g/*/*"],
+    "js": ["tracker.js"],
+    "run_at": "document_idle"
+  }],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>OpenNH · Dashboard</title>
+<style>
+/* ─── TOKENS ──────────────────────────────────────────── */
+:root{
+  --bg:#09090b;
+  --c0:#0d0d0f;
+  --c1:#111114;
+  --c2:#18181c;
+  --c3:#222228;
+  --c4:#303038;
+  --t0:#f4f4f5;
+  --t1:#a1a1aa;
+  --t2:#52525b;
+  --t3:#27272a;
+  --acc:#ef4444;
+  --acc-lo:rgba(239,68,68,.1);
+  --grn:#22c55e;
+  --amb:#f59e0b;
+  --blu:#60a5fa;
+  --r:5px;
+  --mono:'Courier New',Courier,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+[data-theme="light"]{
+  --bg:#ffffff;
+  --c0:#fafafa;
+  --c1:#f4f4f5;
+  --c2:#e4e4e7;
+  --c3:#d4d4d8;
+  --c4:#a1a1aa;
+  --t0:#09090b;
+  --t1:#52525b;
+  --t2:#a1a1aa;
+  --t3:#e4e4e7;
+  --acc:#dc2626;
+  --acc-lo:rgba(220,38,38,.08);
+  --grn:#16a34a;
+  --amb:#d97706;
+  --blu:#2563eb;
+}
+
+/* ─── BASE ────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--t0);
+  font-size:13px;line-height:1.5;display:flex;flex-direction:column}
+button,input,select{font-family:inherit;font-size:inherit}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--c3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--c4)}
+
+/* ─── NAV ─────────────────────────────────────────────── */
+.nav{
+  height:48px;flex-shrink:0;
+  display:flex;align-items:center;
+  padding:0 28px;gap:0;
+  border-bottom:1px solid var(--c3);
+  background:var(--c0);
+  position:relative;z-index:10;
+}
+.nav-logo{
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  color:var(--t0);letter-spacing:-.5px;margin-right:36px;flex-shrink:0;
+}
+.nav-logo b{color:var(--acc)}
+.nav-tabs{display:flex;align-items:stretch;gap:0;height:100%}
+.ntab{
+  height:100%;padding:0 16px;
+  display:flex;align-items:center;
+  font-size:12px;color:var(--t1);
+  background:none;border:none;
+  border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+  cursor:pointer;
+  transition:color .12s;
+  letter-spacing:.1px;
+  white-space:nowrap;
+}
+.ntab:hover{color:var(--t0)}
+.ntab.on{color:var(--t0);border-bottom-color:var(--acc)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-chip{
+  height:28px;padding:0 10px;
+  font-family:var(--mono);font-size:11px;
+  color:var(--t1);background:none;
+  border:1px solid var(--c3);border-radius:var(--r);
+  cursor:pointer;transition:all .12s;
+  display:flex;align-items:center;gap:6px;
+}
+.nav-chip:hover{color:var(--t0);border-color:var(--c4)}
+.nav-chip svg{width:13px;height:13px;flex-shrink:0}
+
+/* ─── SHELL ───────────────────────────────────────────── */
+.shell{flex:1;overflow-y:auto;overflow-x:hidden}
+.page{
+  display:none;flex-direction:column;
+  max-width:1060px;margin:0 auto;
+  padding:32px 28px 48px;gap:28px;
+}
+.page.on{display:flex;animation:appear .15s ease}
+@keyframes appear{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ─── HEADINGS ────────────────────────────────────────── */
+.page-lead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.4px;line-height:1.2}
+.page-sub{font-size:12px;color:var(--t1);margin-top:3px}
+.section-label{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--t2);
+  margin-bottom:12px;
+}
+
+/* ─── STAT STRIP ──────────────────────────────────────── */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--c3);border-radius:var(--r);
+  overflow:hidden;background:var(--c1);
+}
+.stat{
+  padding:20px 22px;
+  border-right:1px solid var(--c3);
+}
+.stat:last-child{border-right:none}
+.stat-k{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--t2);margin-bottom:10px;
+}
+.stat-v{
+  font-family:var(--mono);font-size:30px;font-weight:700;
+  letter-spacing:-.03em;line-height:1;color:var(--t0);
+  font-feature-settings:'tnum';
+}
+.stat-v.hi{color:var(--acc)}
+.stat-d{font-size:11px;color:var(--t2);margin-top:6px}
+
+/* ─── GRID LAYOUTS ────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3l{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+
+/* ─── CARD ────────────────────────────────────────────── */
+.card{
+  background:var(--c1);
+  border:1px solid var(--c3);
+  border-radius:var(--r);
+  overflow:hidden;
+}
+.card-head{
+  padding:13px 18px;
+  border-bottom:1px solid var(--c3);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+}
+.card-title{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--t1);
+}
+.card-hint{font-family:var(--mono);font-size:10px;color:var(--t2)}
+.card-body{padding:16px 18px}
+.card-body.flush{padding:0}
+
+/* ─── TAG CHART ───────────────────────────────────────── */
+.tag-rows{display:flex;flex-direction:column}
+.tag-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 18px;
+  border-bottom:1px solid var(--c3);
+  transition:background .1s;
+}
+.tag-row:last-child{border-bottom:none}
+.tag-row:hover{background:var(--c2)}
+.tag-lbl{
+  font-family:var(--mono);font-size:11px;color:var(--t1);
+  width:140px;flex-shrink:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tag-bar-wrap{flex:1;height:4px;background:var(--c3);border-radius:2px;overflow:hidden}
+.tag-bar{height:100%;background:var(--acc);border-radius:2px}
+.tag-n{
+  font-family:var(--mono);font-size:10px;color:var(--t2);
+  width:22px;text-align:right;flex-shrink:0;
+}
+
+/* ─── LINE CHART ──────────────────────────────────────── */
+.chart-svg{width:100%;display:block;overflow:visible}
+
+/* ─── DONUT ───────────────────────────────────────────── */
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-leg{flex:1;display:flex;flex-direction:column;gap:9px}
+.leg-row{display:flex;align-items:center;justify-content:space-between}
+.leg-l{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t1)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-v{font-family:var(--mono);font-size:12px;color:var(--t0);font-weight:600}
+
+/* ─── RANK LIST ───────────────────────────────────────── */
+.rank-list{display:flex;flex-direction:column}
+.rank-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 18px;
+  border-bottom:1px solid var(--c3);
+}
+.rank-row:last-child{border-bottom:none}
+.rank-i{font-family:var(--mono);font-size:10px;color:var(--t2);width:16px;flex-shrink:0}
+.rank-t{flex:1;font-size:12px;color:var(--t0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-c{font-family:var(--mono);font-size:10px;color:var(--t2);flex-shrink:0}
+.rank-v{font-family:var(--mono);font-size:11px;color:var(--acc);flex-shrink:0;margin-left:8px}
+
+/* ─── COLLECTION ──────────────────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srch{
+  flex:1;min-width:200px;height:34px;padding:0 12px;
+  background:var(--c1);border:1px solid var(--c3);border-radius:var(--r);
+  color:var(--t0);font-size:12px;outline:none;
+  transition:border-color .12s;
+}
+.srch:focus{border-color:var(--c4)}
+.srch::placeholder{color:var(--t2)}
+.pill-row{display:flex;gap:1px;background:var(--c3);border-radius:var(--r);overflow:hidden}
+.pill{
+  height:34px;padding:0 13px;font-size:11px;
+  background:var(--c1);border:none;color:var(--t1);
+  cursor:pointer;transition:all .12s;white-space:nowrap;
+}
+.pill:hover{background:var(--c2);color:var(--t0)}
+.pill.on{background:var(--bg);color:var(--t0);font-weight:600}
+.srt{
+  height:34px;padding:0 10px;background:var(--c1);
+  border:1px solid var(--c3);border-radius:var(--r);
+  color:var(--t1);font-size:11px;font-family:var(--mono);
+  outline:none;cursor:pointer;
+}
+
+/* Gallery table */
+.gtable{
+  border:1px solid var(--c3);border-radius:var(--r);
+  overflow:hidden;background:var(--c1);
+}
+.gtable-head{
+  display:grid;
+  grid-template-columns:1fr 70px 58px 110px 88px;
+  padding:9px 16px;border-bottom:1px solid var(--c3);
+  background:var(--c2);
+}
+.gcol{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--t2);
+}
+.grow{
+  display:grid;
+  grid-template-columns:1fr 70px 58px 110px 88px;
+  padding:0 16px;
+  border-bottom:1px solid var(--c3);
+  align-items:center;min-height:52px;
+  position:relative;transition:background .1s;
+}
+.grow:last-child{border-bottom:none}
+.grow:hover{background:var(--c2)}
+.grow:hover .gacts{opacity:1;pointer-events:auto}
+.gcell{font-family:var(--mono);font-size:11px;color:var(--t1);white-space:nowrap}
+.gcell.dim{color:var(--t2)}
+.gtitle-wrap{display:flex;flex-direction:column;gap:4px;padding:10px 0;
+  min-width:0;padding-right:8px}
+.gtitle{font-size:12px;font-weight:500;color:var(--t0);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gtags{display:flex;gap:3px;flex-wrap:wrap}
+.gtag{
+  font-family:var(--mono);font-size:9px;padding:1px 5px;
+  background:var(--c2);border:1px solid var(--c3);
+  border-radius:2px;color:var(--t2);
+}
+.gstatus{display:flex;align-items:center;gap:5px}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sdot.fav{background:var(--acc)}
+.sdot.done{background:var(--grn)}
+.sdot.rl{background:var(--amb)}
+.sdot.nil{background:var(--c3)}
+.gacts{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  display:flex;align-items:center;gap:2px;
+  opacity:0;pointer-events:none;transition:opacity .12s;
+  background:var(--c2);border:1px solid var(--c3);
+  border-radius:4px;padding:3px;
+}
+.gact{
+  width:26px;height:26px;border:none;background:none;
+  border-radius:3px;color:var(--t1);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .1s;
+}
+.gact:hover{background:var(--c3);color:var(--t0)}
+.gact.on{color:var(--acc)}
+.gact.danger:hover{color:var(--acc)}
+.gact svg{width:13px;height:13px;pointer-events:none}
+
+/* ─── EMPTY ───────────────────────────────────────────── */
+.empty{
+  padding:56px 24px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.empty-icon{opacity:.18;color:var(--t1)}
+.empty-icon svg{width:36px;height:36px}
+.empty-msg{font-size:13px;color:var(--t2)}
+.empty-sub{font-size:11px;color:var(--t2);max-width:260px;line-height:1.6}
+
+/* ─── SETTINGS ────────────────────────────────────────── */
+.sgroup{
+  border:1px solid var(--c3);border-radius:var(--r);
+  overflow:hidden;background:var(--c1);
+  max-width:520px;
+}
+.sgroup-title{
+  padding:10px 18px;background:var(--c2);
+  border-bottom:1px solid var(--c3);
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--t2);
+}
+.srow{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;border-bottom:1px solid var(--c3);gap:16px;
+}
+.srow:last-child{border-bottom:none}
+.slbl{font-size:13px;color:var(--t0);font-weight:500}
+.sdesc{font-size:11px;color:var(--t2);margin-top:2px}
+.sinput{
+  height:30px;padding:0 10px;width:190px;
+  background:var(--c2);border:1px solid var(--c3);border-radius:4px;
+  color:var(--t0);font-size:12px;outline:none;transition:border .12s;
+}
+.sinput:focus{border-color:var(--c4)}
+.sbtn{
+  height:30px;padding:0 14px;
+  background:var(--c2);border:1px solid var(--c3);border-radius:4px;
+  color:var(--t1);font-size:11px;font-family:var(--mono);
+  cursor:pointer;transition:all .12s;white-space:nowrap;
+}
+.sbtn:hover{color:var(--t0);border-color:var(--c4)}
+.sbtn.red{color:var(--acc);border-color:rgba(239,68,68,.35)}
+.sbtn.red:hover{background:var(--acc-lo)}
+
+/* ─── MODAL ───────────────────────────────────────────── */
+.ov{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.ov.on{display:flex}
+.modal{
+  background:var(--c1);border:1px solid var(--c3);border-radius:8px;
+  padding:24px;max-width:460px;width:90%;
+  display:flex;flex-direction:column;gap:14px;
+  box-shadow:0 25px 80px rgba(0,0,0,.5);
+}
+.modal h3{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.modal p{font-size:12px;color:var(--t1);line-height:1.6}
+.mfoot{display:flex;justify-content:flex-end;gap:8px}
+.mfoot button{height:32px;padding:0 16px;border-radius:4px;
+  font-size:12px;font-family:var(--mono);border:1px solid var(--c3);
+  background:var(--c2);color:var(--t1);cursor:pointer;transition:all .12s}
+.mfoot button:hover{color:var(--t0);border-color:var(--c4)}
+.mfoot button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.mfoot button.pri:hover{background:#f87171;border-color:#f87171}
+#share-canvas{border-radius:4px;max-width:100%;
+  border:1px solid var(--c3);display:block}
+
+/* ─── TOAST ───────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:20px;right:20px;z-index:9999;
+  background:var(--c2);border:1px solid var(--c4);border-radius:6px;
+  padding:8px 14px;font-size:12px;font-family:var(--mono);
+  color:var(--t0);box-shadow:0 8px 32px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.toast.on{opacity:1}
+
+/* ─── BTN ─────────────────────────────────────────────── */
+.btn{
+  height:32px;padding:0 14px;border-radius:var(--r);
+  font-size:12px;font-family:var(--mono);
+  border:1px solid var(--c3);background:var(--c2);
+  color:var(--t1);cursor:pointer;transition:all .12s;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.btn:hover{color:var(--t0);border-color:var(--c4)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.pri:hover{background:#f87171;border-color:#f87171}
+.btn svg{width:13px;height:13px}
+
+@media(max-width:760px){
+  .g2,.g3l{grid-template-columns:1fr}
+  .stat-strip{grid-template-columns:1fr 1fr}
+  .stat:nth-child(2){border-right:none}
+  .gtable-head,.grow{grid-template-columns:1fr 70px 80px}
+  .gcol:nth-child(n+4),.grow .gcell:nth-child(n+4){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-logo">Open<b>NH</b></div>
+  <div class="nav-tabs">
+    <button class="ntab on" data-page="analytics" onclick="go(this)">Analytics</button>
+    <button class="ntab" data-page="collection" onclick="go(this)">Collection</button>
+    <button class="ntab" data-page="settings" onclick="go(this)">Settings</button>
+  </div>
+  <div class="nav-r">
+    <button class="nav-chip" id="user-chip" onclick="go(document.querySelector('[data-page=settings]'))">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span id="chip-name">Reader</span>
+    </button>
+    <button class="nav-chip" id="theme-btn" onclick="flipTheme()" title="Toggle theme">
+      <svg id="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Shell -->
+<div class="shell">
+
+  <!-- Analytics -->
+  <div class="page on" id="pg-analytics">
+
+    <div class="page-lead">
+      <div>
+        <div class="page-title" id="a-greeting">Dashboard</div>
+        <div class="page-sub" id="a-sub">No data yet — download a gallery to get started</div>
+      </div>
+      <button class="btn pri" onclick="openShare()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Export Stats
+      </button>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat">
+        <div class="stat-k">Downloads</div>
+        <div class="stat-v hi" id="s-dl">0</div>
+        <div class="stat-d">galleries</div>
+      </div>
+      <div class="stat">
+        <div class="stat-k">Pages</div>
+        <div class="stat-v" id="s-pg">0</div>
+        <div class="stat-d">total images</div>
+      </div>
+      <div class="stat">
+        <div class="stat-k">Est. Read Time</div>
+        <div class="stat-v" id="s-rt">—</div>
+        <div class="stat-d">at 40 sec / page</div>
+      </div>
+      <div class="stat">
+        <div class="stat-k">Completed</div>
+        <div class="stat-v" id="s-cp">0</div>
+        <div class="stat-d" id="s-cp-d">of 0 galleries</div>
+      </div>
+    </div>
+
+    <div class="g3l">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Top Tags</span>
+          <span class="card-hint" id="tag-hint">—</span>
+        </div>
+        <div class="card-body flush" id="c-tags"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Completion</span></div>
+        <div class="card-body" id="c-donut"></div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Downloads per Month</span></div>
+        <div class="card-body" id="c-line" style="padding:12px 14px 10px"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Most Viewed</span></div>
+        <div class="card-body flush" id="c-top"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Collection -->
+  <div class="page" id="pg-collection">
+    <div class="page-lead">
+      <div>
+        <div class="page-title">Collection</div>
+        <div class="page-sub" id="col-sub">0 galleries</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input class="srch" id="srch" placeholder="Title, code, or tag…" oninput="drawCol()"/>
+      <div class="pill-row">
+        <button class="pill on" id="f-all"  onclick="filt('all')">All</button>
+        <button class="pill"    id="f-fav"  onclick="filt('fav')">Favorites</button>
+        <button class="pill"    id="f-rl"   onclick="filt('rl')">Read Later</button>
+        <button class="pill"    id="f-done" onclick="filt('done')">Completed</button>
+      </div>
+      <select class="srt" id="srt" onchange="drawCol()">
+        <option value="date">Latest first</option>
+        <option value="title">A → Z</option>
+        <option value="pages">Most pages</option>
+        <option value="views">Most viewed</option>
+      </select>
+    </div>
+    <div id="col-wrap"></div>
+  </div>
+
+  <!-- Settings -->
+  <div class="page" id="pg-settings">
+    <div class="page-lead">
+      <div>
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Preferences and data management</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:520px">
+
+      <div class="sgroup">
+        <div class="sgroup-title">Profile</div>
+        <div class="srow">
+          <div>
+            <div class="slbl">Username</div>
+            <div class="sdesc">Shown on exported stats cards</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <input class="sinput" id="uname-in" placeholder="Reader" maxlength="32"/>
+            <button class="sbtn" onclick="saveUser()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sgroup">
+        <div class="sgroup-title">Library</div>
+        <div class="srow">
+          <div>
+            <div class="slbl">Export</div>
+            <div class="sdesc">Download all metadata as JSON</div>
+          </div>
+          <button class="sbtn" onclick="doExport()">Export JSON</button>
+        </div>
+        <div class="srow">
+          <div>
+            <div class="slbl">Import</div>
+            <div class="sdesc">Restore from a previous export</div>
+          </div>
+          <button class="sbtn" onclick="doImport()">Import JSON</button>
+        </div>
+      </div>
+
+      <div class="sgroup">
+        <div class="sgroup-title">Danger Zone</div>
+        <div class="srow">
+          <div>
+            <div class="slbl">Clear All Data</div>
+            <div class="sdesc">Permanently removes all records and stats</div>
+          </div>
+          <button class="sbtn red" onclick="doClear()">Clear</button>
+        </div>
+      </div>
+
+      <div class="sgroup">
+        <div class="sgroup-title">About</div>
+        <div class="srow">
+          <div class="slbl">Version</div>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--t2)">v2.1.0</span>
+        </div>
+        <div class="srow">
+          <div class="slbl">Source</div>
+          <a href="https://github.com/myrachane/OpenNH-Download" target="_blank"
+             style="font-family:var(--mono);font-size:11px;color:var(--acc)">
+            github.com/myrachane/OpenNH-Download ↗
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Share modal -->
+<div class="ov" id="share-ov">
+  <div class="modal">
+    <h3>Stats Card</h3>
+    <p>Right-click to save, or download as PNG below.</p>
+    <canvas id="share-canvas"></canvas>
+    <div class="mfoot">
+      <button onclick="closeShare()">Cancel</button>
+      <button class="pri" onclick="dlCard()">Download PNG</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ── DB ────────────────────────────────────────────────────────────────────────
+let DB = { galleries:{}, stats:{}, settings:{ userName:'Reader', theme:'dark' } };
+let CUR_FILT = 'all';
+
+async function dbLoad() {
+  const d = await chrome.storage.local.get(['galleries','stats','settings']);
+  DB.galleries = d.galleries || {};
+  DB.stats     = d.stats     || {};
+  DB.settings  = Object.assign({ userName:'Reader', theme:'dark' }, d.settings||{});
+}
+async function dbSave() {
+  await chrome.storage.local.set({
+    galleries: DB.galleries, stats: DB.stats, settings: DB.settings
+  });
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function go(btn) {
+  const id = btn.getAttribute('data-page');
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('pg-'+id).classList.add('on');
+  if (id==='analytics') drawAnalytics();
+  if (id==='collection') drawCol();
+  if (id==='settings') drawSettings();
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+const SUN = '<circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-ico').innerHTML = t==='dark' ? SUN : MOON;
+  DB.settings.theme = t;
+}
+function flipTheme() { setTheme(DB.settings.theme==='dark'?'light':'dark'); dbSave(); }
+
+// Resolve a CSS custom property to its computed string value
+function cv(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────────
+function drawAnalytics() {
+  const gs = Object.values(DB.galleries);
+  const totPg = gs.reduce((s,g)=>s+(g.pages||0),0);
+  const comp  = gs.filter(g=>g.isCompleted).length;
+  const name  = DB.settings.userName||'Reader';
+
+  document.getElementById('a-greeting').textContent = 'Hey, ' + name;
+  document.getElementById('a-sub').textContent = gs.length
+    ? gs.length+' galerie'+(gs.length!==1?'s':'')+' tracked · '+totPg.toLocaleString()+' pages total'
+    : 'No data yet — download a gallery to get started';
+
+  document.getElementById('s-dl').textContent   = gs.length;
+  document.getElementById('s-pg').textContent   = totPg.toLocaleString();
+  document.getElementById('s-rt').textContent   = fmtTime(totPg*40);
+  document.getElementById('s-cp').textContent   = comp;
+  document.getElementById('s-cp-d').textContent = 'of '+gs.length+' galerie'+(gs.length!==1?'s':'');
+  document.getElementById('chip-name').textContent = name;
+
+  drawTags(gs);
+  drawDonut(gs);
+  drawLine(gs);
+  drawTop(gs);
+}
+
+function drawTags(gs) {
+  const freq={};
+  gs.forEach(g=>(g.tags||[]).forEach(t=>{freq[t]=(freq[t]||0)+1;}));
+  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const uniq = Object.keys(freq).length;
+  document.getElementById('tag-hint').textContent = uniq ? uniq+' unique' : '';
+
+  if (!top.length) {
+    document.getElementById('c-tags').innerHTML = emptyHTML('Tag data appears after downloading a gallery');
+    return;
+  }
+  const max = top[0][1]||1;
+  document.getElementById('c-tags').innerHTML =
+    '<div class="tag-rows">'+
+    top.map(([t,n])=>`
+      <div class="tag-row">
+        <span class="tag-lbl" title="${esc(t)}">${esc(t.length>20?t.slice(0,19)+'…':t)}</span>
+        <div class="tag-bar-wrap"><div class="tag-bar" style="width:${(n/max*100).toFixed(1)}%"></div></div>
+        <span class="tag-n">${n}</span>
+      </div>`).join('')+
+    '</div>';
+}
+
+function drawDonut(gs) {
+  const total   = gs.length||0;
+  const comp    = gs.filter(g=>g.isCompleted).length;
+  const rl      = gs.filter(g=>g.isReadLater&&!g.isCompleted).length;
+  const reading = gs.filter(g=>(g.viewCount||0)>0&&!g.isCompleted&&!g.isReadLater).length;
+  const unread  = Math.max(0,total-comp-rl-reading);
+
+  const segs = [
+    {l:'Completed', v:comp,   clr:cv('--grn')},
+    {l:'Reading',   v:reading,clr:cv('--acc')},
+    {l:'Read Later',v:rl,     clr:cv('--amb')},
+    {l:'Unread',    v:unread, clr:cv('--c4')},
+  ].filter(s=>s.v>0);
+
+  if (!segs.length) {
+    document.getElementById('c-donut').innerHTML = emptyHTML('No galleries yet');
+    return;
+  }
+
+  const donut = mkDonut(segs, 96);
+  const legend = segs.map(s=>`
+    <div class="leg-row">
+      <div class="leg-l">
+        <div class="leg-dot" style="background:${s.clr}"></div>
+        <span>${s.l}</span>
+      </div>
+      <span class="leg-v">${s.v}</span>
+    </div>`).join('');
+  document.getElementById('c-donut').innerHTML =
+    `<div class="donut-wrap">${donut}<div class="donut-leg">${legend}</div></div>`;
+}
+
+function drawLine(gs) {
+  if (!gs.length) {
+    document.getElementById('c-line').innerHTML = emptyHTML('No downloads yet');
+    return;
+  }
+  const byM={};
+  gs.forEach(g=>{
+    const d=new Date(g.downloadedAt||Date.now());
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    byM[k]=(byM[k]||0)+1;
+  });
+  const keys=Object.keys(byM).sort();
+  // Fill month gaps
+  if (keys.length>1) {
+    const s=new Date(keys[0]+'-01'), e=new Date(keys[keys.length-1]+'-01');
+    for (let d=new Date(s);d<=e;d.setMonth(d.getMonth()+1)) {
+      const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      if (!byM[k]) byM[k]=0;
+    }
+  }
+  const data=Object.keys(byM).sort().map(k=>({
+    l:k.slice(5)+'/'+k.slice(2,4), v:byM[k]
+  }));
+  document.getElementById('c-line').innerHTML = mkLine(data);
+}
+
+function drawTop(gs) {
+  const sorted=[...gs].sort((a,b)=>(b.viewCount||0)-(a.viewCount||0))
+    .filter(g=>(g.viewCount||0)>0).slice(0,7);
+  if (!sorted.length) {
+    document.getElementById('c-top').innerHTML =
+      emptyHTML('Visit galleries on nhentai.net to track views');
+    return;
+  }
+  const max=sorted[0].viewCount||1;
+  document.getElementById('c-top').innerHTML =
+    '<div class="rank-list">'+
+    sorted.map((g,i)=>`
+      <div class="rank-row">
+        <span class="rank-i">${i+1}</span>
+        <span class="rank-t" title="${esc(g.title||g.code)}">${esc(g.title||'Gallery '+g.code)}</span>
+        <span class="rank-c">${g.code}</span>
+        <span class="rank-v">${g.viewCount}×</span>
+      </div>`).join('')+
+    '</div>';
+}
+
+// ── COLLECTION ────────────────────────────────────────────────────────────────
+function filt(f) {
+  CUR_FILT=f;
+  ['all','fav','rl','done'].forEach(id=>{
+    document.getElementById('f-'+id)?.classList.toggle('on',id===f);
+  });
+  drawCol();
+}
+
+function drawCol() {
+  let gs=Object.values(DB.galleries);
+  const q=(document.getElementById('srch')?.value||'').toLowerCase().trim();
+  const srt=document.getElementById('srt')?.value||'date';
+
+  if (q) gs=gs.filter(g=>
+    (g.title||'').toLowerCase().includes(q)||
+    g.code.includes(q)||
+    (g.tags||[]).some(t=>t.toLowerCase().includes(q))
+  );
+  if (CUR_FILT==='fav')  gs=gs.filter(g=>g.isFavorite);
+  if (CUR_FILT==='rl')   gs=gs.filter(g=>g.isReadLater);
+  if (CUR_FILT==='done') gs=gs.filter(g=>g.isCompleted);
+
+  gs.sort((a,b)=>{
+    if (srt==='date')  return (b.downloadedAt||0)-(a.downloadedAt||0);
+    if (srt==='title') return (a.title||a.code).localeCompare(b.title||b.code);
+    if (srt==='pages') return (b.pages||0)-(a.pages||0);
+    if (srt==='views') return (b.viewCount||0)-(a.viewCount||0);
+    return 0;
+  });
+
+  const n=gs.length;
+  document.getElementById('col-sub').textContent =
+    n+' galerie'+(n!==1?'s':'')+
+    (CUR_FILT!=='all'?' (filtered)':'');
+
+  if (!n) {
+    document.getElementById('col-wrap').innerHTML =
+      '<div class="gtable"><div class="empty">'+
+      '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>'+
+      '<div class="empty-msg">'+(q||CUR_FILT!=='all'?'No galleries match':'Nothing downloaded yet')+'</div>'+
+      (q||CUR_FILT!=='all'?'':'<div class="empty-sub">Open a gallery reader on nhentai.net and click the extension icon to download.</div>')+
+      '</div></div>';
+    return;
+  }
+
+  const rows=gs.map(g=>{
+    const date=g.downloadedAt
+      ? new Date(g.downloadedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'})
+      : '—';
+    const tags=(g.tags||[]).slice(0,3).map(t=>`<span class="gtag">${esc(t)}</span>`).join('');
+    const dots=[
+      g.isFavorite  ? '<div class="sdot fav"  title="Favorite"></div>'   : '',
+      g.isCompleted ? '<div class="sdot done" title="Completed"></div>'  : '',
+      g.isReadLater ? '<div class="sdot rl"   title="Read Later"></div>' : '',
+    ].filter(Boolean);
+    if (!dots.length) dots.push('<div class="sdot nil"></div>');
+
+    // SVG icon helpers
+    const ico = (p,extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ${extra}>${p}</svg>`;
+    const iFav  = ico(`<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>`,
+      g.isFavorite?'fill="currentColor"':'');
+    const iRL   = ico(`<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>`,
+      g.isReadLater?'fill="currentColor"':'');
+    const iDone = ico(`<polyline points="20 6 9 17 4 12"/>`);
+    const iSite = ico(`<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`);
+    const iDel  = ico(`<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>`);
+
+    return `
+    <div class="grow">
+      <div class="gtitle-wrap">
+        <span class="gtitle" title="${esc(g.title||g.code)}">${esc(g.title||'Gallery '+g.code)}</span>
+        <div class="gtags">${tags}</div>
+      </div>
+      <span class="gcell dim">${g.code}</span>
+      <span class="gcell">${g.pages||'?'}</span>
+      <span class="gcell dim">${date}</span>
+      <div class="gcell gstatus">${dots.join('')}</div>
+      <div class="gacts">
+        <button class="gact${g.isFavorite?' on':''}"  title="Favorite"     onclick="tog('${g.code}','isFavorite')">${iFav}</button>
+        <button class="gact${g.isReadLater?' on':''}" title="Read Later"   onclick="tog('${g.code}','isReadLater')">${iRL}</button>
+        <button class="gact${g.isCompleted?' on':''}" title="Mark Complete" onclick="tog('${g.code}','isCompleted')">${iDone}</button>
+        <button class="gact" title="Open on nhentai" onclick="openSite('${g.code}')">${iSite}</button>
+        <button class="gact danger" title="Remove" onclick="delG('${g.code}')">${iDel}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('col-wrap').innerHTML =
+    `<div class="gtable">
+      <div class="gtable-head">
+        <span class="gcol">Title</span>
+        <span class="gcol">Code</span>
+        <span class="gcol">Pages</span>
+        <span class="gcol">Downloaded</span>
+        <span class="gcol">Status</span>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+async function tog(code, flag) {
+  const g=DB.galleries[code]; if (!g) return;
+  g[flag]=!g[flag]; await dbSave(); drawCol();
+  if (document.getElementById('pg-analytics').classList.contains('on')) drawAnalytics();
+}
+function openSite(c) { chrome.tabs.create({url:'https://nhentai.net/g/'+c+'/'}); }
+async function delG(code) {
+  if (!confirm('Remove #'+code+' from your library?\n(Does not delete the ZIP file)')) return;
+  delete DB.galleries[code]; await dbSave(); drawCol(); drawAnalytics();
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function drawSettings() {
+  const el=document.getElementById('uname-in');
+  if (el) el.value=DB.settings.userName||'';
+}
+async function saveUser() {
+  const v=(document.getElementById('uname-in').value||'').trim(); if (!v) return;
+  DB.settings.userName=v; document.getElementById('chip-name').textContent=v;
+  await dbSave(); toast('Username saved');
+  drawAnalytics();
+}
+function doExport() {
+  const blob=new Blob([JSON.stringify({galleries:DB.galleries,stats:DB.stats,settings:DB.settings},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='opennh-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),5000); toast('Exported');
+}
+function doImport() {
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json';
+  inp.onchange=async e=>{
+    try {
+      const d=JSON.parse(await e.target.files[0].text());
+      if (d.galleries) DB.galleries=Object.assign({},DB.galleries,d.galleries);
+      if (d.stats)     DB.stats=d.stats;
+      if (d.settings)  DB.settings=Object.assign({},DB.settings,d.settings);
+      await dbSave(); drawAnalytics(); toast('Imported successfully');
+    } catch { toast('Could not read file'); }
+  };
+  inp.click();
+}
+async function doClear() {
+  if (!confirm('This will permanently delete ALL records.\nAre you sure?')) return;
+  DB={galleries:{},stats:{},settings:{userName:DB.settings.userName,theme:DB.settings.theme}};
+  await dbSave(); drawAnalytics(); drawCol(); toast('Cleared');
+}
+
+// ── SVG CHARTS ────────────────────────────────────────────────────────────────
+function mkDonut(segs, size=100) {
+  const cx=size/2, cy=size/2, r=cx-12, sw=10;
+  const circ=2*Math.PI*r;
+  const total=segs.reduce((s,d)=>s+d.v,0)||1;
+  let offset=(-circ/4).toFixed(2);
+  const bg=cv('--c2');
+  const t0=cv('--t0');
+  let circles=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${bg}" stroke-width="${sw+2}"/>`;
+  segs.forEach(({v,clr})=>{
+    const dash=((v/total)*circ).toFixed(2);
+    const gap=(circ-(v/total)*circ+2).toFixed(2);
+    circles+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${clr}" stroke-width="${sw}"
+      stroke-dasharray="${dash} ${gap}"
+      stroke-dashoffset="${offset}"
+      stroke-linecap="butt"/>`;
+    offset=(parseFloat(offset)-(v/total)*circ).toFixed(2);
+  });
+  circles+=`<text x="${cx}" y="${cy+5}" text-anchor="middle"
+    font-size="${Math.round(size*.17)}px" font-weight="700"
+    fill="${t0}" font-family="Courier New,monospace">${total}</text>`;
+  return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg"
+    width="${size}" height="${size}">${circles}</svg>`;
+}
+
+function mkLine(data) {
+  if (!data.length) return emptyHTML('No data');
+  if (data.length===1) return `<div style="padding:4px 0;font-family:var(--mono);font-size:12px;color:var(--t1)">${data[0].v} download${data[0].v!==1?'s':''} in ${data[0].l}</div>`;
+  const W=480,H=130,pL=28,pB=22,pT=8,pR=8;
+  const cW=W-pL-pR, cH=H-pB-pT;
+  const max=Math.max(...data.map(d=>d.v),1);
+  const pts=data.map((d,i)=>({
+    x:+(pL+(i/(data.length-1))*cW).toFixed(2),
+    y:+(pT+(1-d.v/max)*cH).toFixed(2),
+    ...d
+  }));
+  // Smooth bezier
+  let pathD=`M${pts[0].x},${pts[0].y}`;
+  for (let i=1;i<pts.length;i++) {
+    const p=pts[i-1],c=pts[i];
+    const cpx=(p.x+c.x)/2;
+    pathD+=` C${cpx},${p.y} ${cpx},${c.y} ${c.x},${c.y}`;
+  }
+  const last=pts[pts.length-1], first=pts[0];
+  const areaD=pathD+` L${last.x},${pT+cH} L${pL},${pT+cH}Z`;
+  const acc=cv('--acc'), b1=cv('--c3'), t2=cv('--t2'), t0=cv('--t0');
+  const every=Math.max(1,Math.ceil(data.length/5));
+  const xLabels=pts.filter((_,i)=>i===0||i===data.length-1||i%every===0).map(p=>
+    `<text x="${p.x}" y="${H-3}" text-anchor="middle" font-size="9" fill="${t2}" font-family="monospace">${p.l}</text>`
+  ).join('');
+  const uid='ln'+Math.random().toString(36).slice(2,7);
+  const gridY=[0,.5,1].map(f=>{
+    const y=(pT+cH*(1-f)).toFixed(1);
+    return `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="${b1}" stroke-width=".5"/>
+    <text x="${pL-3}" y="${y}" dominant-baseline="middle" text-anchor="end" font-size="9" fill="${t2}" font-family="monospace">${Math.round(max*f)}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="100%">
+    <defs>
+      <linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${acc}" stop-opacity=".18"/>
+        <stop offset="100%" stop-color="${acc}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${gridY}
+    <path d="${areaD}" fill="url(#${uid})"/>
+    <path d="${pathD}" fill="none" stroke="${acc}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.filter(p=>p.v>0).map(p=>`<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="${acc}" stroke="${cv('--c1')}" stroke-width="1.5"/>`).join('')}
+    ${xLabels}
+  </svg>`;
+}
+
+// ── SHARE CARD ────────────────────────────────────────────────────────────────
+function openShare() { renderCard(); document.getElementById('share-ov').classList.add('on'); }
+function closeShare() { document.getElementById('share-ov').classList.remove('on'); }
+function dlCard() {
+  renderCard();
+  const cv2=document.getElementById('share-canvas');
+  const a=document.createElement('a');
+  a.href=cv2.toDataURL('image/png'); a.download='opennh-stats.png'; a.click();
+}
+function renderCard() {
+  const dark=DB.settings.theme==='dark';
+  const gs=Object.values(DB.galleries);
+  const totPg=gs.reduce((s,g)=>s+(g.pages||0),0);
+  const comp=gs.filter(g=>g.isCompleted).length;
+  const freq={};
+  gs.forEach(g=>(g.tags||[]).forEach(t=>{freq[t]=(freq[t]||0)+1;}));
+  const top5=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const name=DB.settings.userName||'Reader';
+
+  const W=500,H=280,cv2=document.getElementById('share-canvas');
+  cv2.width=W; cv2.height=H;
+  const ctx=cv2.getContext('2d');
+
+  const BG   = dark?'#09090b':'#ffffff';
+  const S1   = dark?'#111114':'#f4f4f5';
+  const BD   = dark?'#222228':'#e4e4e7';
+  const T0   = dark?'#f4f4f5':'#09090b';
+  const T1   = dark?'#a1a1aa':'#52525b';
+  const T2   = dark?'#52525b':'#a1a1aa';
+  const ACC  = '#ef4444';
+
+  // Background
+  ctx.fillStyle=BG; ctx.fillRect(0,0,W,H);
+  // Top accent line
+  ctx.fillStyle=ACC; ctx.fillRect(0,0,W,3);
+  // Footer bar
+  ctx.fillStyle=S1; ctx.fillRect(0,H-28,W,28);
+
+  // Brand
+  ctx.fillStyle=T2; ctx.font='700 9px Courier New,monospace';
+  ctx.fillText('OPENNH-DOWNLOAD',20,22);
+
+  // Name + date
+  ctx.fillStyle=T0; ctx.font='700 17px system-ui,sans-serif';
+  ctx.fillText(name+"'s Stats",20,48);
+  ctx.fillStyle=T1; ctx.font='11px Courier New,monospace';
+  ctx.fillText(new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),20,65);
+
+  // Divider
+  ctx.fillStyle=BD; ctx.fillRect(20,76,W-40,1);
+
+  // Stat boxes
+  [[gs.length,'GALLERIES'],[totPg.toLocaleString(),'PAGES'],
+   [fmtTime(totPg*40),'READ TIME'],[comp,'COMPLETED']].forEach(([v,k],i)=>{
+    const x=20+i*118;
+    ctx.fillStyle=T2; ctx.font='700 9px Courier New,monospace'; ctx.fillText(k,x,96);
+    ctx.fillStyle=i===0?ACC:T0;
+    ctx.font='700 20px Courier New,monospace'; ctx.fillText(String(v),x,120);
+  });
+
+  // Divider
+  ctx.fillStyle=BD; ctx.fillRect(20,134,W-40,1);
+
+  // Tags
+  ctx.fillStyle=T2; ctx.font='700 9px Courier New,monospace'; ctx.fillText('TOP TAGS',20,152);
+  const maxF=top5[0]?.[1]||1;
+  top5.forEach(([tag,n],i)=>{
+    const y=164+i*20, bw=Math.max(6,(n/maxF)*(W-170));
+    ctx.fillStyle=S1; ctx.fillRect(20,y,bw,13);
+    ctx.fillStyle=ACC; ctx.fillRect(20,y,3,13);
+    ctx.fillStyle=T0; ctx.font='11px Courier New,monospace';
+    ctx.fillText(tag.length>24?tag.slice(0,23)+'…':tag,28,y+9);
+    ctx.fillStyle=T2; ctx.font='10px Courier New,monospace';
+    ctx.fillText('×'+n,24+bw+4,y+9);
+  });
+
+  // Footer text
+  ctx.fillStyle=T2; ctx.font='10px Courier New,monospace';
+  ctx.fillText('github.com/myrachane/OpenNH-Download',20,H-9);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmtTime(s){
+  if(!s||s<60)return'<1m';
+  const h=Math.floor(s/3600),m=Math.round((s%3600)/60);
+  if(!h)return m+'m';
+  return h+'h'+(m?m+'m':'');
+}
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function emptyHTML(msg) {
+  return `<div class="empty">
+    <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></div>
+    <div class="empty-msg">${esc(msg)}</div>
+  </div>`;
+}
+function toast(msg,ms=2200){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'),ms);
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+(async()=>{
+  await dbLoad();
+  setTheme(DB.settings.theme||'dark');
+  document.getElementById('chip-name').textContent=DB.settings.userName||'Reader';
+  drawAnalytics();
+})();
+</script>
+</body>
+</html>
